@@ -1,0 +1,60 @@
+import streamlit as st
+import requests
+from requests.auth import HTTPBasicAuth
+
+# 認証情報とエンドポイントの設定
+jira_url = "https://mm581204.atlassian.net/"
+issue_key = "DTEN2-5"  # 課題キーを指定
+api_endpoint = f"/rest/api/3/issue/{issue_key}"
+auth = HTTPBasicAuth("XXXX@gmail.com", "XXXX")
+
+# Streamlitアプリケーションの開始
+st.title(f"JIRA Issue: {issue_key}")
+
+# APIリクエストの送信とレスポンスの確認
+st.write("APIリクエストを送信しています...")
+
+response = requests.get(
+    f"{jira_url}{api_endpoint}",
+    headers={"Content-Type": "application/json"},
+    auth=auth,
+)
+
+# ステータスコードの確認
+st.write(f"ステータスコード: {response.status_code}")
+
+if response.status_code != 200:
+    st.write(f"エラーが発生しました: {response.text}")
+else:
+    # レスポンスデータを取得
+    issue = response.json()
+    st.write("取得した課題データ:", issue)
+    
+    # 課題の詳細フィールドを表示
+    fields = issue["fields"]
+    summary = fields.get("summary", "No summary")
+    status = fields.get("status", {}).get("name", "No status")
+    assignee = fields.get("assignee", {}).get("displayName", "Unassigned")
+    description = fields.get("description", "No description")
+    created = fields.get("created", "No creation date")
+    updated = fields.get("updated", "No update date")
+    PlannedStartDate = fields.get("customfield_10070", "No data")
+    StartDate = fields.get("customfield_10071", "No data")
+    CompletionDate = fields.get("customfield_10072", "No data")
+    Actualcompletiondate = fields.get("customfield_10073", "No data")
+    PlannedManHours = fields.get("customfield_10074", "No data")
+    LocationOfArtifactStorage = fields.get("customfield_10069", "No data")
+
+    # 取得したデータをStreamlitで表示
+    st.write(f"**Summary**: {summary}")
+    st.write(f"**Status**: {status}")
+    st.write(f"**Assignee**: {assignee}")
+    st.write(f"**Description**: {description}")
+    st.write(f"**Created**: {created}")
+    st.write(f"**Updated**: {updated}")
+    st.write(f"**開始予定日**: {PlannedStartDate}")
+    st.write(f"**開始実績日**: {StartDate}")
+    st.write(f"**完了予定日**: {CompletionDate}")
+    st.write(f"**完了実績日**: {Actualcompletiondate}")
+    st.write(f"**予定工数（人日）**: {PlannedManHours}")
+    st.write(f"**成果物格納先**: {LocationOfArtifactStorage}")
